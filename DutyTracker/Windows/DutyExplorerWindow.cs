@@ -60,7 +60,7 @@ public class DutyExplorerWindow : Window, IDisposable
 
             foreach (var (duty, idx) in DutyTracker.DutyManager.DutyList.Select((val, i) => (val, i)))
             {
-                if (!ImGui.Selectable($"{duty.TerritoryType.PlaceName.Value?.Name ?? "Report This"}##{idx}", SelectedDuty == duty))
+                if (!ImGui.Selectable($"{duty.TerritoryType.PlaceName.Value.Name.ExtractText()}##{idx}", SelectedDuty == duty))
                     continue;
 
                 SelectedRun = null;

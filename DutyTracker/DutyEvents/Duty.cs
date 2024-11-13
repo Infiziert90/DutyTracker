@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DutyTracker.Enums;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace DutyTracker.DutyEvents;
 

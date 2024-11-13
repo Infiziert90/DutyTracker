@@ -1,7 +1,7 @@
 using System;
 using DutyTracker.Enums;
 using DutyTracker.Extensions;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace DutyTracker.Services.DutyEvent;
 

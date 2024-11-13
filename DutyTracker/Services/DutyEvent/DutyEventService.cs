@@ -1,6 +1,6 @@
 ﻿using System;
 using DutyTracker.Extensions;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace DutyTracker.Services.DutyEvent;
 
@@ -34,14 +34,14 @@ public sealed class DutyEventService : IDisposable
     private void OnDutyStarted(object? o, ushort territoryType)
     {
         DutyTracker.Log.Information($"Duty Detected. TerritoryType: {territoryType}");
-        var territory = Sheets.TerritorySheet.GetRow(territoryType);
-        if (territory is null)
+        if (!Sheets.TerritorySheet.HasRow(territoryType))
         {
             DutyTracker.Log.Warning("Could not load territory sheet.");
             return;
         }
 
-        DutyTracker.Log.Information($"IntendedUse: {territory.TerritoryIntendedUse}, Name: {territory.Name ?? "No Name"}, PlaceName: {territory.PlaceName.Value?.Name ?? "No Name"}");
+        var territory = Sheets.TerritorySheet.GetRow(territoryType);
+        DutyTracker.Log.Information($"IntendedUse: {territory.TerritoryIntendedUse.RowId}, Name: {territory.Name.ExtractText()}, PlaceName: {territory.PlaceName.Value.Name.ExtractText()}");
         if (!territory.GetIntendedUseEnum().ShouldTrack())
             return;
 

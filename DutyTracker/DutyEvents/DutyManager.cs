@@ -159,11 +159,10 @@ public class DutyManager : IDisposable
     {
         if (CurrentDuty is null)
         {
-            var territory = Sheets.TerritorySheet.GetRow(DutyTracker.ClientState.TerritoryType);
-            if (territory is null)
+            if (Sheets.TerritorySheet.HasRow(DutyTracker.ClientState.TerritoryType))
                 return;
 
-            StartDuty(new DutyStartedEventArgs(territory));
+            StartDuty(new DutyStartedEventArgs(Sheets.TerritorySheet.GetRow(DutyTracker.ClientState.TerritoryType)));
         }
 
         CurrentRun = new Run();

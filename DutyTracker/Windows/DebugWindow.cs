@@ -48,16 +48,16 @@ public class DebugWindow : Window, IDisposable
         if (!tabItem.Success)
             return;
 
-        var territory = Sheets.TerritorySheet.GetRow(DutyTracker.ClientState.TerritoryType);
-        if (territory is null)
+        if (!Sheets.TerritorySheet.HasRow(DutyTracker.ClientState.TerritoryType))
         {
             ImGui.TextUnformatted("Null territory");
             return;
         }
 
+        var territory = Sheets.TerritorySheet.GetRow(DutyTracker.ClientState.TerritoryType);
         var intendedUse = territory.GetIntendedUseEnum();
         ImGui.TextUnformatted($"Territory Type: {territory}");
-        ImGui.TextUnformatted($"Territory Name: {territory.PlaceName.Value?.Name} - {territory.Name}");
+        ImGui.TextUnformatted($"Territory Name: {territory.PlaceName.Value.Name.ExtractText()} - {territory.Name}");
         ImGui.TextUnformatted($"IsPvpZone: {territory.IsPvpZone}");
         ImGui.TextUnformatted($"Intended use: {intendedUse} - {territory.TerritoryIntendedUse}");
         ImGui.TextUnformatted($"HasAlliance: {intendedUse.HasAlliance()}");

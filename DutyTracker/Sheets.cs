@@ -1,5 +1,5 @@
 ﻿using Lumina.Excel;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace DutyTracker;
 

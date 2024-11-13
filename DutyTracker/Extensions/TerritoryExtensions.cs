@@ -1,12 +1,11 @@
 using DutyTracker.Enums;
+using Lumina.Excel.Sheets;
 
 namespace DutyTracker.Extensions;
 
 internal static class TerritoryExtensions
 {
-    public static TerritoryIntendedUseEnum GetIntendedUseEnum(
-        this Lumina.Excel.GeneratedSheets.TerritoryType territoryType) =>
-        (TerritoryIntendedUseEnum)territoryType.TerritoryIntendedUse;
+    public static TerritoryIntendedUseEnum GetIntendedUseEnum(this TerritoryType territoryType) => (TerritoryIntendedUseEnum)territoryType.TerritoryIntendedUse.RowId;
 
     public static bool HasAlliance(this TerritoryIntendedUseEnum territory) =>
         territory switch
