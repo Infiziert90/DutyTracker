@@ -29,7 +29,7 @@ public sealed unsafe class PlayerCharacterState : IDisposable
     private Alliance Alliance5;
 
     // These are all magic numbers that correspond to memory locations in the game.
-    private const int AllianceStringPosition = 64;
+    private const int AllianceStringPosition = 65;
     private const int Party1Position = 0;
     private const int Party2Position = 9;
     private const int Party3Position = 18;
