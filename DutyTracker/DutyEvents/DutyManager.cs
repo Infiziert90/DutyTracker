@@ -6,6 +6,7 @@ using DutyTracker.Enums;
 using DutyTracker.Extensions;
 using DutyTracker.Services.DutyEvent;
 using DutyTracker.Services.PlayerCharacter;
+using FFXIVClientStructs.FFXIV.Client.Game;
 
 namespace DutyTracker.DutyEvents;
 
@@ -72,7 +73,7 @@ public class DutyManager : IDisposable
     {
         DutyActive = true;
         AnyDutiesStarted = true;
-        CurrentDuty = new Duty(eventArgs.TerritoryType, eventArgs.IntendedUse.GetAllianceType());
+        CurrentDuty = new Duty(eventArgs);
 
         StartNewRun();
     }
@@ -142,6 +143,8 @@ public class DutyManager : IDisposable
         }
 
         DutyList.Add(CurrentDuty);
+        DutyTracker.MainWindow.SelectedDuty = CurrentDuty;
+        DutyTracker.MainWindow.SelectedRun = CurrentDuty.RunList[^1];
     }
 
     private void AddDeath(object? o, PlayerDeathEventArgs eventArgs)
@@ -155,14 +158,17 @@ public class DutyManager : IDisposable
             CurrentRun.EndTime = DateTime.Now;
     }
 
-    private void StartNewRun()
+    private unsafe void StartNewRun()
     {
         if (CurrentDuty is null)
         {
-            if (Sheets.TerritorySheet.HasRow(DutyTracker.ClientState.TerritoryType))
+            if (!Sheets.TerritorySheet.TryGetRow(DutyTracker.ClientState.TerritoryType, out var territoryRow))
                 return;
 
-            StartDuty(new DutyStartedEventArgs(Sheets.TerritorySheet.GetRow(DutyTracker.ClientState.TerritoryType)));
+            if (!Sheets.ContentFinderSheet.TryGetRow(GameMain.Instance()->CurrentContentFinderConditionId, out var contentRow))
+                return;
+
+            StartDuty(new DutyStartedEventArgs(territoryRow, contentRow));
         }
 
         CurrentRun = new Run();

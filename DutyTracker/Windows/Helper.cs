@@ -4,7 +4,8 @@ namespace DutyTracker.Windows;
 
 public static class Helper
 {
-    internal static void InfoText(string label, string value) => InfoText(label, value, ImGui.GetContentRegionAvail().X);
+    internal static void InfoText(string label, string value) =>
+        InfoText(label, value, ImGui.GetContentRegionAvail().X);
 
     internal static void InfoText(string label, string value, float width)
     {

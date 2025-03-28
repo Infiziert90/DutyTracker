@@ -1,9 +1,9 @@
 ﻿using Dalamud.Game.Command;
+using Dalamud.Interface.Windowing;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using DutyTracker.DutyEvents;
-using DutyTracker.Services;
 using DutyTracker.Services.DutyEvent;
 using DutyTracker.Services.PlayerCharacter;
 using DutyTracker.Windows;
@@ -24,27 +24,32 @@ public sealed class DutyTracker : IDalamudPlugin
 
     private const string CommandName = "/dt";
 
+    private readonly WindowSystem WindowSystem = new("DutyTracker");
+    public readonly MainWindow MainWindow;
+    private readonly ConfigWindow ConfigWindow;
+    private readonly DebugWindow DebugWindow;
+
     public readonly Configuration Configuration;
     public readonly DutyManager DutyManager;
 
     internal static DutyEventService DutyEventService = null!;
     internal static PlayerCharacterState PlayerCharacterState = null!;
-    internal static WindowService WindowService = null!;
 
     public DutyTracker()
     {
         DutyEventService = new DutyEventService();
         PlayerCharacterState = new PlayerCharacterState();
-        WindowService = new WindowService();
 
         Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
 
         DutyManager = new DutyManager(this);
 
-        WindowService.AddWindow("MainWindow", new MainWindow(this));
-        WindowService.AddWindow("ConfigWindow", new ConfigWindow(this));
-        WindowService.AddWindow("DutyExplorer", new DutyExplorerWindow(this));
-        WindowService.AddWindow("Debug", new DebugWindow());
+        MainWindow = new MainWindow(this);
+        ConfigWindow = new ConfigWindow(this);
+        DebugWindow = new DebugWindow();
+        WindowSystem.AddWindow(MainWindow);
+        WindowSystem.AddWindow(ConfigWindow);
+        WindowSystem.AddWindow(DebugWindow);
 
         Commands.AddHandler(CommandName, new CommandInfo(OnCommand)
         {
@@ -54,16 +59,12 @@ public sealed class DutyTracker : IDalamudPlugin
         PluginInterface.UiBuilder.Draw += DrawUi;
         PluginInterface.UiBuilder.OpenMainUi += OpenMain;
         PluginInterface.UiBuilder.OpenConfigUi += OpenSettings;
-
-#if DEBUG
-        // Service.DutyEventService.Debug();
-#endif
     }
 
     public void Dispose()
     {
         Commands.RemoveHandler(CommandName);
-        WindowService.Dispose();
+        WindowSystem.RemoveAllWindows();
 
         PlayerCharacterState.Dispose();
         DutyEventService.Dispose();
@@ -71,17 +72,25 @@ public sealed class DutyTracker : IDalamudPlugin
 
     private void OnCommand(string command, string args)
     {
-        if (args == "debug")
-            WindowService.OpenWindow("Debug");
-        else
-            WindowService.ToggleWindow("MainWindow");
+        switch (args)
+        {
+            case "debug":
+                DebugWindow.Toggle();
+                break;
+            case "config":
+                ConfigWindow.Toggle();
+                break;
+            default:
+                MainWindow.Toggle();
+                break;
+        }
     }
 
-    private void OpenMain() => WindowService.OpenWindow("MainWindow");
-    private void OpenSettings() => WindowService.OpenWindow("ConfigWindow");
+    private void OpenMain() => MainWindow.Toggle();
+    private void OpenSettings() => ConfigWindow.Toggle();
 
     private void DrawUi()
     {
-        WindowService.Draw();
+        WindowSystem.Draw();
     }
 }

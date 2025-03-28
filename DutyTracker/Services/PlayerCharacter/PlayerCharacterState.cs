@@ -8,6 +8,7 @@ using DutyTracker.Services.DutyEvent;
 using DutyTracker.Windows;
 using FFXIVClientStructs.FFXIV.Client.Game.Group;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using ImGuiNET;
 
 namespace DutyTracker.Services.PlayerCharacter;
@@ -29,7 +30,6 @@ public sealed unsafe class PlayerCharacterState : IDisposable
     private Alliance Alliance5;
 
     // These are all magic numbers that correspond to memory locations in the game.
-    private const int AllianceStringPosition = 65;
     private const int Party1Position = 0;
     private const int Party2Position = 9;
     private const int Party3Position = 18;
@@ -136,14 +136,14 @@ public sealed unsafe class PlayerCharacterState : IDisposable
 
     private static bool IsAllianceStringDataPopulated()
     {
-        var stringArray = RaptureAtkModule.Instance()->AtkModule.AtkArrayDataHolder.StringArrays[AllianceStringPosition]->StringArray;
+        var stringArray = RaptureAtkModule.Instance()->AtkModule.AtkArrayDataHolder.StringArrays[(int)StringArrayType.AllianceList]->StringArray;
 
         return !string.IsNullOrWhiteSpace(Marshal.PtrToStringUTF8(new nint(stringArray[0])));
     }
 
     private void SetAlliances(GroupManager* groupManager)
     {
-        var stringArray = RaptureAtkModule.Instance()->AtkModule.AtkArrayDataHolder.StringArrays[AllianceStringPosition]->StringArray;
+        var stringArray = RaptureAtkModule.Instance()->AtkModule.AtkArrayDataHolder.StringArrays[(int)StringArrayType.AllianceList]->StringArray;
         DutyTracker.Log.Debug("Party Strings");
         DutyTracker.Log.Debug($"  string{Party1Position}:  {Marshal.PtrToStringUTF8(new nint(stringArray[Party1Position]))}");
         DutyTracker.Log.Debug($"  string{Party2Position}:  {Marshal.PtrToStringUTF8(new nint(stringArray[Party2Position]))}");

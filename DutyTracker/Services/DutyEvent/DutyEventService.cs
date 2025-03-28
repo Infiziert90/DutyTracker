@@ -1,5 +1,6 @@
 ﻿using System;
 using DutyTracker.Extensions;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using Lumina.Excel.Sheets;
 
 namespace DutyTracker.Services.DutyEvent;
@@ -31,22 +32,25 @@ public sealed class DutyEventService : IDisposable
         DutyTracker.ClientState.TerritoryChanged -= OnTerritoryChanged;
     }
 
-    private void OnDutyStarted(object? o, ushort territoryType)
+    private unsafe void OnDutyStarted(object? o, ushort territoryType)
     {
-        DutyTracker.Log.Information($"Duty Detected. TerritoryType: {territoryType}");
-        if (!Sheets.TerritorySheet.HasRow(territoryType))
+        if (!Sheets.TerritorySheet.TryGetRow(territoryType, out var territoryRow))
         {
-            DutyTracker.Log.Warning("Could not load territory sheet.");
+            DutyTracker.Log.Warning("Could not find in territory sheet.");
             return;
         }
 
-        var territory = Sheets.TerritorySheet.GetRow(territoryType);
-        DutyTracker.Log.Information($"IntendedUse: {territory.TerritoryIntendedUse.RowId}, Name: {territory.Name.ExtractText()}, PlaceName: {territory.PlaceName.Value.Name.ExtractText()}");
-        if (!territory.GetIntendedUseEnum().ShouldTrack())
+        if (!territoryRow.GetIntendedUseEnum().ShouldTrack())
             return;
 
+        if (!Sheets.ContentFinderSheet.TryGetRow(GameMain.Instance()->CurrentContentFinderConditionId, out var contentRow))
+        {
+            DutyTracker.Log.Warning("Couldn't find in content sheet.");
+            return;
+        }
+
         DutyStarted = true;
-        SafeInvokeDutyStarted(territory);
+        SafeInvokeDutyStarted(territoryRow, contentRow);
     }
 
     private void OnDutyWiped(object? o, ushort territory)
@@ -84,11 +88,11 @@ public sealed class DutyEventService : IDisposable
     // Because events are being invoked while we're still in the client's native code, unhandled exceptions will cause
     // an immediate crash to desktop. Wrapping them like this masks the problem, but I think users would prefer the
     // plugin to be broken than their game to crash.
-    private void SafeInvokeDutyStarted(TerritoryType territoryType)
+    private void SafeInvokeDutyStarted(TerritoryType territoryType, ContentFinderCondition content)
     {
         try
         {
-            OnDutyStartedEvent?.Invoke(this, new DutyStartedEventArgs(territoryType));
+            OnDutyStartedEvent?.Invoke(this, new DutyStartedEventArgs(territoryType, content));
         }
         catch (Exception e)
         {
