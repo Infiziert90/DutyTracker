@@ -18,10 +18,9 @@ public sealed class MainWindow : Window, IDisposable
 
     public MainWindow(DutyTracker dutyTracker) : base("Duty Explorer")
     {
-        Flags = ImGuiWindowFlags.AlwaysAutoResize;
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(500, 330),
+            MinimumSize = new Vector2(550, 330),
             MaximumSize = new Vector2(float.MaxValue, float.MaxValue),
         };
 
