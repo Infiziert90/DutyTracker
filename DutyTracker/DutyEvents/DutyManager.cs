@@ -144,7 +144,7 @@ public class DutyManager : IDisposable
 
         DutyList.Add(CurrentDuty);
         DutyTracker.MainWindow.SelectedDuty = CurrentDuty;
-        DutyTracker.MainWindow.SelectedRun = CurrentDuty.RunList[^1];
+        DutyTracker.MainWindow.SelectedRun = CurrentDuty.RunList.Count != 0 ? CurrentDuty.RunList[^1] : null;
     }
 
     private void AddDeath(object? o, PlayerDeathEventArgs eventArgs)
