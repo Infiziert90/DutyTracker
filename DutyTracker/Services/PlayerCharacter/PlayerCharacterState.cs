@@ -294,40 +294,41 @@ public sealed unsafe class PlayerCharacterState : IDisposable
 
     public static void DebugGroupManager()
     {
-        var groupManager1 = GroupManager.Instance();
-        var groupManager2 = GetSecondGroupManager(groupManager1);
-        var index = 1;
-
-        if (groupManager1 is null)
+        var groupManagers = GroupManager.Instance();
+        if (groupManagers is null)
         {
             ImGui.TextUnformatted("No Group Manager Available.");
             return;
         }
 
+        var index = 1;
+
         ImGui.TextUnformatted("== GroupManager 1 ==");
-        ImGuiGroupManager(groupManager1);
-        ImGuiParty(groupManager1);
-        ImGuiAlliance(groupManager1);
+        ImGuiGroupManager(groupManagers->MainGroup);
+        ImGuiParty(groupManagers->MainGroup);
+        ImGuiAlliance(groupManagers->MainGroup);
+
         index++;
+
         ImGui.TextUnformatted("== GroupManager 2 ==");
-        ImGuiGroupManager(groupManager2);
-        ImGuiParty(groupManager2);
-        ImGuiAlliance(groupManager2);
+        ImGuiGroupManager(groupManagers->ReplayGroup);
+        ImGuiParty(groupManagers->ReplayGroup);
+        ImGuiAlliance(groupManagers->ReplayGroup);
 
         return;
 
-        void ImGuiGroupManager(GroupManager* groupManager)
+        void ImGuiGroupManager(GroupManager.Group group)
         {
-            ImGui.TextUnformatted($"Alliance Flags: {groupManager->MainGroup.AllianceFlags}");
-            ImGui.TextUnformatted($"MemberCount: {groupManager->MainGroup.MemberCount}");
-            ImGui.TextUnformatted($"PartyId: {groupManager->MainGroup.PartyId}");
-            ImGui.TextUnformatted($"PartyId_2: {groupManager->MainGroup.PartyId_2}");
-            ImGui.TextUnformatted($"PartyLeaderIndex: {groupManager->MainGroup.PartyLeaderIndex}");
+            ImGui.TextUnformatted($"Alliance Flags: {group.AllianceFlags}");
+            ImGui.TextUnformatted($"MemberCount: {group.MemberCount}");
+            ImGui.TextUnformatted($"PartyId: {group.PartyId}");
+            ImGui.TextUnformatted($"PartyId_2: {group.PartyId_2}");
+            ImGui.TextUnformatted($"PartyLeaderIndex: {group.PartyLeaderIndex}");
         }
 
-        void ImGuiParty(GroupManager* groupManager)
+        void ImGuiParty(GroupManager.Group group)
         {
-            if (groupManager->MainGroup.MemberCount == 0)
+            if (group.MemberCount == 0)
             {
                 ImGui.TextUnformatted(" - No Party - ");
                 return;
@@ -341,7 +342,7 @@ public sealed unsafe class PlayerCharacterState : IDisposable
             Helper.TableHeader("Index", "Name", "CurrentHP", "ClassJob");
             for (var i = 0; i < 8; i++)
             {
-                var partyMember = groupManager->MainGroup.GetPartyMemberByIndex(i);
+                var partyMember = group.GetPartyMemberByIndex(i);
                 if (IsPlayerInitialized(partyMember))
                     DebugPartyMemberRow(partyMember, i);
                 else
@@ -349,9 +350,9 @@ public sealed unsafe class PlayerCharacterState : IDisposable
             }
         }
 
-        void ImGuiAlliance(GroupManager* groupManager)
+        void ImGuiAlliance(GroupManager.Group group)
         {
-            if (groupManager->MainGroup.AllianceFlags == 0x00)
+            if (group.AllianceFlags == 0x00)
             {
                 ImGui.TextUnformatted(" - No Alliance - ");
                 return;
@@ -365,7 +366,7 @@ public sealed unsafe class PlayerCharacterState : IDisposable
             Helper.TableHeader("Index", "Name", "CurrentHP", "ClassJob");
             for (var i = 0; i < 20; i++)
             {
-                var allianceMember = groupManager->MainGroup.GetAllianceMemberByIndex(i);
+                var allianceMember = group.GetAllianceMemberByIndex(i);
                 if (IsPlayerInitialized(allianceMember))
                 {
                     try
@@ -409,7 +410,7 @@ public sealed unsafe class PlayerCharacterState : IDisposable
         ImGui.TextUnformatted($"Alliance State = {AllianceState}");
 
         ImGui.TextUnformatted("Party Cache");
-        using var table = ImRaii.Table("PartyCache", 4);
+        using (var table = ImRaii.Table("PartyCache", 4))
         {
             if (table.Success)
             {
@@ -427,18 +428,16 @@ public sealed unsafe class PlayerCharacterState : IDisposable
 
         ImGui.TextUnformatted("Alliance Cache");
         using var lowerTable = ImRaii.Table("AllianceCache", 4);
+        if (lowerTable.Success)
         {
-            if (lowerTable.Success)
+            Helper.TableHeader("", "Name", "HP", "Alliance");
+            for (var i = 0; i < AllianceCache.Length; i++)
             {
-                Helper.TableHeader("", "Name", "HP", "Alliance");
-                for (var i = 0; i < AllianceCache.Length; i++)
-                {
-                    var cachedMember = AllianceCache[i];
-                    if (cachedMember is not null)
-                        Helper.TableRow($"{i}", $"{cachedMember.Name}", $"{cachedMember.Hp}", $"{cachedMember.Alliance}");
-                    else
-                        EmptyPlayerRow(i);
-                }
+                var cachedMember = AllianceCache[i];
+                if (cachedMember is not null)
+                    Helper.TableRow($"{i}", $"{cachedMember.Name}", $"{cachedMember.Hp}", $"{cachedMember.Alliance}");
+                else
+                    EmptyPlayerRow(i);
             }
         }
     }

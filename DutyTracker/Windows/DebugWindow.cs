@@ -56,10 +56,10 @@ public class DebugWindow : Window, IDisposable
 
         var territory = Sheets.TerritorySheet.GetRow(DutyTracker.ClientState.TerritoryType);
         var intendedUse = territory.GetIntendedUseEnum();
-        ImGui.TextUnformatted($"Territory Type: {territory}");
-        ImGui.TextUnformatted($"Territory Name: {territory.PlaceName.Value.Name.ExtractText()} - {territory.Name}");
+        ImGui.TextUnformatted($"Territory Type: {territory.RowId}");
+        ImGui.TextUnformatted($"Territory Name: {territory.PlaceName.Value.Name} - {territory.Name}");
         ImGui.TextUnformatted($"IsPvpZone: {territory.IsPvpZone}");
-        ImGui.TextUnformatted($"Intended use: {intendedUse} - {territory.TerritoryIntendedUse}");
+        ImGui.TextUnformatted($"Intended use: {intendedUse} - {territory.TerritoryIntendedUse.RowId}");
         ImGui.TextUnformatted($"HasAlliance: {intendedUse.HasAlliance()}");
         ImGui.TextUnformatted($"IsRaidOrTrial: {intendedUse.IsRaidOrTrial()}");
         ImGui.TextUnformatted($"UsesBothGroupManagers: {intendedUse.UsesBothGroupManagers()}");
