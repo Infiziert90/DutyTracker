@@ -5,7 +5,7 @@ using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using DutyTracker.DutyEvents;
 using DutyTracker.Extensions;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 
 namespace DutyTracker.Windows;
 
