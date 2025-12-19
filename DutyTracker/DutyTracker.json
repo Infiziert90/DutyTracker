@@ -6,5 +6,10 @@
   "InternalName": "DutyTracker",
   "ApplicableVersion": "any",
   "RepoUrl": "https://github.com/Infiziert90/DutyTracker",
-  "Tags": []
+  "Tags": [
+    "Duty",
+    "Tracking",
+    "Trials",
+    "Savage"
+  ]
 }
