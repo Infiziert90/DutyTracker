@@ -1,4 +1,5 @@
 ﻿using System;
+using Dalamud.Game.DutyState;
 using DutyTracker.Extensions;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Lumina.Excel.Sheets;
@@ -32,15 +33,16 @@ public sealed class DutyEventService : IDisposable
         DutyTracker.ClientState.TerritoryChanged -= OnTerritoryChanged;
     }
 
-    private unsafe void OnDutyStarted(object? o, ushort territoryType)
+    private unsafe void OnDutyStarted(IDutyStateEventArgs args)
     {
-        if (!Sheets.TerritorySheet.TryGetRow(territoryType, out var territoryRow))
+        var territoryRow = args.TerritoryType.ValueNullable;
+        if (territoryRow is null)
         {
             DutyTracker.Log.Warning("Could not find in territory sheet.");
             return;
         }
 
-        if (!territoryRow.GetIntendedUseEnum().ShouldTrack())
+        if (!territoryRow.Value.GetIntendedUseEnum().ShouldTrack())
             return;
 
         if (!Sheets.ContentFinderSheet.TryGetRow(GameMain.Instance()->CurrentContentFinderConditionId, out var contentRow))
@@ -50,22 +52,22 @@ public sealed class DutyEventService : IDisposable
         }
 
         DutyStarted = true;
-        SafeInvokeDutyStarted(territoryRow, contentRow);
+        SafeInvokeDutyStarted(territoryRow.Value, contentRow);
     }
 
-    private void OnDutyWiped(object? o, ushort territory)
+    private void OnDutyWiped(IDutyStateEventArgs args)
     {
         DutyTracker.Log.Verbose("Duty Wipe");
         SafeInvokeDutyWiped();
     }
 
-    private void OnDutyRecommenced(object? o, ushort territory)
+    private void OnDutyRecommenced(IDutyStateEventArgs args)
     {
         DutyTracker.Log.Verbose("Duty Recommenced");
         SafeInvokeDutyRecommenced();
     }
 
-    private void OnDutyEnded(object? o, ushort territory)
+    private void OnDutyEnded(IDutyStateEventArgs args)
     {
         if (DutyStarted)
         {
@@ -76,7 +78,7 @@ public sealed class DutyEventService : IDisposable
 
     // This gets called before DutyState.DutyCompleted, so we can intercept in case the duty is abandoned instead of
     // completed.
-    private void OnTerritoryChanged(ushort territoryType)
+    private void OnTerritoryChanged(uint u)
     {
         if (DutyStarted && DutyTracker.DutyState.IsDutyStarted == false)
         {

@@ -9,9 +9,9 @@ public static class Utils
     public static string ToTitleCaseExtended(this ReadOnlySeString s, sbyte article = 0)
     {
         if (article == 1)
-            return s.ExtractText();
+            return s.ToString();
 
-        var sb        = new StringBuilder(s.ExtractText());
+        var sb        = new StringBuilder(s.ToString());
         var lastSpace = true;
         for (var i = 0; i < sb.Length; ++i)
         {
